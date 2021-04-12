@@ -1,3 +1,5 @@
+import { gsap } from "gsap";
+
 // Get the canvas element from the DOM
 const canvas = document.getElementById('scene');
 
@@ -47,6 +49,15 @@ class Dot {
     this.xProjected = 0; // x coordinate on the 2D world
     this.yProjected = 0; // y coordinate on the 2D world
     this.scaleProjected = 0; // Scale of the element on the 2D world (further = smaller)
+
+    gsap.to(this, (Math.random() * 10 + 15), {
+      z: width,
+      repeat: -1,
+      yoyo: true,
+      ease: Power2.easeOut,
+      yoyoEase: true,
+      delay: Math.random() * -25
+    });
   }
   // Project our element from its 3D world to the 2D canvas
   project() {
