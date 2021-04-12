@@ -86,3 +86,5 @@ function render() {
   // Request the browser the call render once its ready for a new frame
   window.requestAnimationFrame(render);
 }
+
+render();
