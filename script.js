@@ -148,5 +148,4 @@ window.addEventListener('resize', onResize);
 // Populate the dots array with random dots
 createDots();
 
-// Render the scene
-window.requestAnimationFrame(render);
+render();
