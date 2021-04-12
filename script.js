@@ -1,3 +1,7 @@
+// Get the canvas element from the DOM
+const canvas = document.getElementById('scene');
+
+// Get the canvas dimensions
 let width = canvas.offsetWidth; // Width of the scene
 let height = canvas.offsetHeight; // Height of the scene
 
