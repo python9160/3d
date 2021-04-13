@@ -1,29 +1,59 @@
-var canvas = document.getElementById("render-canvas");
-var engine = new BABYLON.Engine(canvas);
-var scene = new BABYLON.Scene(engine);
-scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 25, 0), scene);
-camera.setTarget(BABYLON.Vector3.Zero());
-camera.attachControl(canvas, true);
-var light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
+const canvas = document.getElementById("render-canvas"); // Get the canvas element
+const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
-for (var i = 0; i < 1000; i++) {
-  var geo = new BABYLON.MeshBuilder.CreateBox("box", { size: 0.5 }, scene)
-  var mat = new BABYLON.StandardMaterial("material", scene);
-  mat.emissiveColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-  geo.material = mat;
+const createScene = () => {
+  const scene = new BABYLON.Scene(engine);
 
-  geo.position.x = (Math.random()-0.5) * 40
-  geo.position.y = (Math.random()-0.5) * 40
-  geo.position.z = (Math.random()-0.5) * 40
+  /**** Set camera and light *****/
+  const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, new BABYLON.Vector3(0, 0, 0));
+  camera.attachControl(canvas, true);
+  const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 
-  geo.rotation.x = Math.random()
-  geo.rotation.y = Math.random()
-  geo.rotation.z = Math.random()
+  /**** Materials *****/
+  //color
+  const groundMat = new BABYLON.StandardMaterial("groundMat");
+  groundMat.diffuseColor = new BABYLON.Color3(0, 1, 0)
+
+  //texture
+  const roofMat = new BABYLON.StandardMaterial("roofMat");
+  roofMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/roof.jpg");
+  const boxMat = new BABYLON.StandardMaterial("boxMat");
+  boxMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/cubehouse.png")
+
+
+  //options parameter to set different images on each side
+  const faceUV = [];
+  faceUV[0] = new BABYLON.Vector4(0.5, 0.0, 0.75, 1.0); //rear face
+  faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.25, 1.0); //front face
+  faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //right side
+  faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //left side
+  // top 4 and bottom 5 not seen so not set
+
+
+  /**** World Objects *****/
+  const box = BABYLON.MeshBuilder.CreateBox("box", { faceUV: faceUV, wrap: true });
+  box.material = boxMat;
+  box.position.y = 0.5;
+  const roof = BABYLON.MeshBuilder.CreateCylinder("roof", { diameter: 1.3, height: 1.2, tessellation: 3 });
+  roof.material = roofMat;
+  roof.scaling.x = 0.75;
+  roof.rotation.z = Math.PI / 2;
+  roof.position.y = 1.22;
+
+  const house = BABYLON.Mesh.MergeMeshes([box, roof], true, false, null, false, true);
+
+  const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 10, height: 10 });
+  ground.material = groundMat;
+
+  return scene;
 }
 
-
-var renderLoop = function () {
+const scene = createScene(); //Call the createScene function
+// Register a render loop to repeatedly render the scene
+engine.runRenderLoop(function () {
   scene.render();
-};
-engine.runRenderLoop(renderLoop);
+});
+// Watch for browser/canvas resize events
+window.addEventListener("resize", function () {
+  engine.resize();
+});
